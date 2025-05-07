@@ -78,10 +78,7 @@ def train(model: ARWGAN,
                                   noised_images[:images_to_save, :, :, :].cpu(),
                                   epoch,
                                   os.path.join(this_run_folder, 'images'), resize_to=saved_images_size)
-                # utils.save_images_noise(
-                #                         noised_images[:images_to_save, :, :, :].cpu(),
-                #                         epoch,
-                #                         os.path.join(this_run_folder, 'images'), resize_to=saved_images_size)
+             
                 first_iteration = False
 
         utils.log_progress(validation_losses)
