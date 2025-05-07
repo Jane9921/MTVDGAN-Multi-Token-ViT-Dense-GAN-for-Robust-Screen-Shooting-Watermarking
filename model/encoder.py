@@ -88,7 +88,6 @@ class Encoder(nn.Module):
 
         self.final_layer = nn.Sequential(nn.Conv2d(config.message_length, 3, kernel_size=3, padding=1),
                                          )
-        # 初始化 StokenAttention 对象
         self.StokenAttentionLayer = StokenAttentionLayer(dim=config.encoder_channels, stoken_size=[8, 8], n_iter=1)
 
     def forward(self, image, message):
@@ -105,8 +104,7 @@ class Encoder(nn.Module):
         feature3 = self.fivth_layer(torch.cat((feature3, expanded_message), 1))
 
         feature_attention = self.StokenAttentionLayer(feature0)
-        # dropout
-        nn.Dropout(0.1)
+        nn.Dropout()
 
         feature_mask = (self.sixth_layer(feature_attention)) * 30
         feature = feature3 * feature_mask
