@@ -58,10 +58,6 @@ def main():
                                  help='The directory where the data is stored. Specify a value only if you want to override the previous value.')
     continue_parser.add_argument('--epochs', '-e', required=False, type=int,
                                  help='Number of epochs to run the simulation. Specify a value only if you want to override the previous value.')
-    # continue_parser.add_argument('--tensorboard', action='store_true',
-    #                             help='Override the previous setting regarding tensorboard logging.')
-
-    # args = parent_parser.parse_args()
     args = continue_parser.parse_args()
     print(args)
     args.command = 'continue'
@@ -69,10 +65,6 @@ def main():
         args = parent_parser.parse_args(
             ['new', '--data-dir', '', '--batch_size', '64', '--name',
              'your_experiment_name'])
-
-
-    # checkpoint = None
-    # loaded_checkpoint_file_name = None
 
     if args.command == 'continue':
         this_run_folder = args.folder
@@ -150,12 +142,10 @@ def main():
     else:
         tb_logger = None
 
-    # Initialize the Noiser and ARWGAN model
     noiser = Noiser(noise_config, device)
     model = ARWGAN(net_config, device, noiser, tb_logger)
 
     if args.command == 'continue':
-        # if we are continuing, we have to load the model params
         assert checkpoint is not None
         logging.info(f'Loading checkpoint from file {loaded_checkpoint_file_name}')
         utils.model_from_checkpoint(model, checkpoint)
