@@ -1,10 +1,3 @@
-'''
-encoder-noiser-decoder
-修改noiser的时候，要记得修改这里的调用
-
-2024.8.26
-替换noise 为 pimog noise
-'''
 import torch.nn as nn
 from model.encoder import Encoder
 from model.decoder import Decoder
