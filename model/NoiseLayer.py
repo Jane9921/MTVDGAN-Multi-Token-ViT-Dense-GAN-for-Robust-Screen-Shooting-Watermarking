@@ -8,7 +8,6 @@ import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 def _compute_translation_matrix(translation: torch.Tensor) -> torch.Tensor:
-    """Computes affine matrix for translation."""
     matrix: torch.Tensor = torch.eye(
         3, device=translation.device, dtype=translation.dtype)
     matrix = matrix.repeat(translation.shape[0], 1, 1)
@@ -20,7 +19,6 @@ def _compute_translation_matrix(translation: torch.Tensor) -> torch.Tensor:
 
 
 def _compute_tensor_center(tensor: torch.Tensor) -> torch.Tensor:
-    """Computes the center of tensor plane for (H, W), (C, H, W) and (B, C, H, W)."""
     assert 2 <= len(tensor.shape) <= 4, f"Must be a 3D tensor as HW, CHW and BCHW. Got {tensor.shape}."
     height, width = tensor.shape[-2:]
     center_x: float = float(width - 1) / 2
@@ -33,7 +31,6 @@ def _compute_tensor_center(tensor: torch.Tensor) -> torch.Tensor:
 
 def _compute_scaling_matrix(scale: torch.Tensor,
                             center: torch.Tensor) -> torch.Tensor:
-    """Computes affine matrix for scaling."""
     # angle: torch.Tensor = torch.zeros_like(scale)
     angle: torch.Tensor = torch.zeros(scale.shape[0])
     matrix: torch.Tensor = kornia.get_rotation_matrix2d(center, angle, scale)
@@ -42,7 +39,6 @@ def _compute_scaling_matrix(scale: torch.Tensor,
 
 def _compute_rotation_matrix(angle: torch.Tensor,
                              center: torch.Tensor) -> torch.Tensor:
-    """Computes a pure affine rotation matrix."""
     scale: torch.Tensor = torch.ones((angle.shape[0], 2))
     matrix: torch.Tensor = kornia.get_rotation_matrix2d(center, angle, scale)
     return matrix
@@ -166,31 +162,21 @@ import torch
 import numpy as np
 
 def MoireGen(p_size, theta, x_centered, y_centered):
-    # 将 z 初始化为 PyTorch 张量
+    
     z = torch.zeros((p_size, p_size), dtype=torch.float32)
 
-    # 固定频率值
-    freq1 = 8
-    freq2 = 9
-
-    # 确保 x_centered, y_centered, theta 已经是 PyTorch 张量
     x_centered = torch.tensor(x_centered, dtype=torch.float32)
     y_centered = torch.tensor(y_centered, dtype=torch.float32)
     theta = torch.tensor(theta, dtype=torch.float32)
-
-    # 循环进行 Moire 生成
     for i in range(p_size):
         for j in range(p_size):
-            # 计算 z1 和 z2
             z1 = torch.sin(
                 2 * torch.pi * (freq1 * (x_centered * torch.cos(theta) + y_centered * torch.sin(theta)) / p_size))
             z2 = torch.sin(
                 2 * torch.pi * (freq2 * (x_centered * torch.cos(-theta) + y_centered * torch.sin(-theta)) / p_size))
 
-            # 计算 z[i, j]，取逐元素最小值
-            z[i, j] = torch.min(0.5 * (1 + z1 * z2))  # 使用 torch.min 计算最小值
+            z[i, j] = torch.min(0.5 * (1 + z1 * z2)) 
 
-    # 归一化结果
     M = (z + 1) / 2
     return M
 
@@ -247,20 +233,16 @@ class ScreenShooting(nn.Module):
         noised_image = torch.zeros_like(embed_image)
         device = embed_image.device
 
-        # perspective transform
         noised_image = perspective(embed_image, device, 2)
 
-        # Light Distortion
         c = np.random.randint(0, 2)
         L = Light_Distortion(c, embed_image)
 
-        # Moire Distortion
         Z = Moire_Distortion(embed_image) * 2 - 1
         Li = L.copy()
         Mo = Z.copy()
         noised_image = noised_image * torch.from_numpy(Li).to(device) * 0.85 + torch.from_numpy(Mo).to(device) * 0.15
 
-        # Gaussian noise
         noised_image = noised_image + 0.001 ** 0.5 * torch.randn(noised_image.size()).to(device)
 
         return noised_image
