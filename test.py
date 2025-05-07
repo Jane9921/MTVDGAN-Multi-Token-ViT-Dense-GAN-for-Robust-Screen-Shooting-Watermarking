@@ -1,7 +1,3 @@
-'''
-gray images can not be tested, they have been chosen into the folder named <special>.
-
-'''
 import torch.nn
 import argparse
 import os
@@ -58,8 +54,6 @@ def main():
     parser.add_argument('--source_images', '-s', default='', type=str,
                         help='The image to watermark')
     parser.add_argument("--noise", '-n', nargs="*", action=NoiseArgParser)
-    # parser.add_argument('--times', '-t', default=10, type=int,
-    #                     help='Number iterations (insert watermark->extract).')
     args = parser.parse_args()
     train_options, net_config, noise_config = utils.load_options(args.options_file)
     noise_config = args.noise
@@ -92,16 +86,12 @@ def main():
         print('decoded : {}'.format(decoded_rounded))
         print('error : {:.3f}'.format(np.mean(np.abs(decoded_rounded - message_detached))))
 
-        # psnr
         psnr_value = PSNR(message_detached, decoded_rounded)
         print(f'The PSNR value between the images is: {psnr_value:.4f} dB')
 
-        # #ssim
         # ssim_value = ssim(message_detached, decoded_rounded)
         # print(f'The ssim value between the images is: {ssim_value:.4f} dB')
 
-
-    # utils.save_images(image_tensor.cpu(), encoded_images.cpu(), 'test', '.', resize_to=(128, 128))
     utils.save_images(image_tensor.cpu(), encoded_images.cpu(), 8, '', resize_to=(128, 128))
 
 
