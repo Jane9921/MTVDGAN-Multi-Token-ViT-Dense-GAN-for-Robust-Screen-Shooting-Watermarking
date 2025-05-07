@@ -1,40 +1,12 @@
-'''
-Description:
-Date: 2023-07-21 14:36:27
-LastEditTime: 2023-07-27 18:41:47
-FilePath: /chengdongzhou/ScConv.py
-'''
 import torch
 import torch.nn.functional as F
 import torch.nn as nn
 
 
-'''class GroupBatchnorm2d(nn.Module):
-    def __init__(self, c_num: int,
-                 group_num: int = 16,
-                 eps: float = 1e-10
-                 ):
-        super(GroupBatchnorm2d, self).__init__()
-        assert c_num >= group_num
-        self.group_num = group_num
-        self.weight = nn.Parameter(torch.randn(c_num, 1, 1))
-        self.bias = nn.Parameter(torch.zeros(c_num, 1, 1))
-        self.eps = eps
-
-    def forward(self, x):
-        N, C, H, W = x.size()
-        x = x.view(N, self.group_num, -1)
-        mean = x.mean(dim=2, keepdim=True)
-        std = x.std(dim=2, keepdim=True)
-        x = (x - mean) / (std + self.eps)
-        x = x.view(N, C, H, W)
-        return x * self.weight + self.bias
-'''
-
 class GroupBatchnorm2d(nn.Module):
     def __init__(self, c_num: int, group_num: int = 16, eps: float = 1e-10):
         super(GroupBatchnorm2d, self).__init__()
-        assert c_num % group_num == 0  # 确保可以平均分组
+        assert c_num % group_num == 0  
         self.group_num = group_num
         self.weight = nn.Parameter(torch.randn(c_num, 1, 1))
         self.bias = nn.Parameter(torch.zeros(c_num, 1, 1))
@@ -42,7 +14,7 @@ class GroupBatchnorm2d(nn.Module):
 
     def forward(self, x):
         N, C, H, W = x.size()
-        assert C % self.group_num == 0  # 确保通道数可以被组数整除
+        assert C % self.group_num == 0  
         x = x.view(N, self.group_num, C // self.group_num, H, W)
         mean = x.mean(dim=(3, 4), keepdim=True)
         std = x.std(dim=(3, 4), keepdim=True)
@@ -84,9 +56,6 @@ class SRU(nn.Module):
 
 
 class CRU(nn.Module):
-    '''
-    alpha: 0<alpha<1
-    '''
 
     def __init__(self,
                  op_channel: int,
